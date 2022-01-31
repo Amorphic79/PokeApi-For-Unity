@@ -35,20 +35,6 @@ and here we also remove virtual from CanUseInBattle and CanUseOutsideBattle and 
 And we also need setters for all fields in PokemonBase, LearnableMove and Evolution
 
 Add Steel, Dark, Fairy to PokemonType in PokemonBase.cs
-
-Last thing is to add a sort method to LearnableMoves, so we can sort the list by Level for easier overview.
-Let's make LearnableMove derive from IComparable
-public class LearnableMove : IComparable<LearnableMove>
-
-amd add this to the class
-  
-   public int CompareTo(LearnableMove other)
-    {
-        if (other == null)
-            return 1;
-        else
-            return this.level.CompareTo(other.level);
-    }
   
 This should conclude everything :)
 When compiled, you should see a new Menu called MrAmorphic in Unity. 
