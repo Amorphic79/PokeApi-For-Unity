@@ -980,8 +980,6 @@ namespace MrAmorphic
                 }
             }
 
-            pokemonToAdd.LearnableMoves.Sort();
-
             pokemonToAdd.Evolutions = new List<Evolution>();
 
             List<PokeApiEvolvesTo> evolvesTo = new List<PokeApiEvolvesTo>();
