@@ -17,13 +17,13 @@ Install Editor Coroutines -> restart Unity
 
 Now we need to add an integer called id to movebase, itembase and pokemonbase and give them getters/setters
 
-PokemonBase.cs add
+PokemonBase.cs add<br>
 [SerializeField] MrAmorphic.PokeApiPokemon pokeApiPokemon; 
 
-MoveBase.cs add
+MoveBase.cs add<br>
 [SerializeField] private MrAmorphic.PokeApiMove pokeApiMove; 
 
-ItemBase.cs
+ItemBase.cs<br>
 [SerializeField] private MrAmorphic.PokeApiItem pokeApiItem;
 
 all three with get/set so we can access the fields.
