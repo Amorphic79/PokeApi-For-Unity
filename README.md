@@ -34,10 +34,6 @@ and here we also remove virtual from CanUseInBattle and CanUseOutsideBattle and 
 
 And we also need setters for all fields in PokemonBase, LearnableMove and Evolution
 
-
-In MoveBase.cs
-Lets add None to MoveCategory this is used as a failsafe when getting moves.
-
 Add Steel, Dark, Fairy to PokemonType in PokemonBase.cs
 
 This should conclude everything :)
