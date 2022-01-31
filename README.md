@@ -9,6 +9,9 @@ If you have my previous PokeAPi.cs script, remove it first!
 
 Firstly we need to install the Unity package EditorCoroutines
 Window -> Package Manager
+
+This is a pre-release package so you need to enable pre-releases
+
 Gear -> Advanced project settings -> Enable pre-release
 Install Editor Coroutines -> restart Unity
 
