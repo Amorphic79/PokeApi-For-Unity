@@ -2,7 +2,7 @@
 
 This is a data fetcher/asset creator for Unity, specifically Game Dev Experiences How to make a Pokemon Game series on youtube.
 
-MrAmorphic.cs needs to be in a Editor folder, and PokeAPi.cs cannot be in one.
+MrAmorphic.cs needs to be in a Editor folder, and PokeApi.cs cannot be in one.
 After importing these two files into your project you will see many errors, so lets fix them first.
 
 If you have my previous PokeAPi.cs script, remove it first!
@@ -39,3 +39,10 @@ In MoveBase.cs
 Lets add None to MoveCategory this is used as a failsafe when getting moves.
 
 Add Steel, Dark, Fairy to PokemonType in PokemonBase.cs
+
+This should conclude everything :)
+When compiled, you should see a new Menu called MrAmorphic in Unity. 
+First you can check the settings in MrAmorphic.cs around line 180. 
+These are the folders where everything is created, wich language to use and wich game to get texts from.
+And the last bools are if you want the sprites to be downloaded and added for pokemons and items.
+and if you want to blank files for Pokemons/Items that are missing when adding evolutions. If a Pokemon/Item is missing, the evolution won't be added.
