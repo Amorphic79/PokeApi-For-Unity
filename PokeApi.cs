@@ -1,4 +1,4 @@
-﻿namespace MrAmorphic
+namespace MrAmorphic
 {
     [System.Serializable]
     public class PokeApiItem
