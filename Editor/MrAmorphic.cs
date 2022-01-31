@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -80,7 +80,6 @@ namespace MrAmorphic
             this.move.Accuracy = 0;
             this.move.Description = string.Empty;
             this.move.Type = PokemonType.None;
-            this.move.Category = MoveCategory.None;
             this.move.Power = 0;
             this.move.PP = 0;
             this.move.Name = string.Empty;
@@ -178,6 +177,7 @@ namespace MrAmorphic
         private static PokeApi instance;
         private static bool fetchError = false;
 
+        ///SETTINGS ///////////////////////////////////////////////////////////////////////
         private static string pathToResources = "/Game/Resources/";
         private static string pathToMoveAssets = "Moves/Test/";
         private static string pathToItemAssets = "Items/Test/";
@@ -200,7 +200,8 @@ namespace MrAmorphic
         private static bool fetchSprites = true;
         private static bool createPokemonStubIfNotExistForEvolution = true;
         private static bool createItemStubIfNotExistForEvolution = true;
-
+        private static bool createMoveStubIfNotExistForPokemonMoves = true;
+        ///SETTINGS END////////////////////////////////////////////////////////////////////
         public static string FormatJson(string json, string indent = "    ")
         {
             var indentation = 0;
@@ -352,7 +353,16 @@ namespace MrAmorphic
             }
         }
 
-        [MenuItem("MrAmorphic/PokeApi/ALL/Fetch All")]
+        [MenuItem("MrAmorphic/PokeAPI/Create Folders #&f")]
+        private static void CreateFolders()
+        {
+            instance = CreateInstance<PokeApi>();
+            instance.CreateItemFolders();
+            instance.CreatePokemonFolders();
+            instance.CreateMoveFolders();
+        }
+
+        [MenuItem("MrAmorphic/PokeAPI/ALL/Fetch All")]
         private static void FetchEverything()
         {
             ClearConsole();
@@ -360,7 +370,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.FetchEverythingCO(), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Moves/Fetch All Moves #&m")]
+        [MenuItem("MrAmorphic/PokeAPI/Moves/Fetch All Moves #&m")]
         private static void FetchAllMoves()
         {
             ClearConsole();
@@ -368,7 +378,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetMoves(), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Items/Fetch All Items #&i")]
+        [MenuItem("MrAmorphic/PokeAPI/Items/Fetch All Items #&i")]
         private static void FetchAllItems()
         {
             ClearConsole();
@@ -376,7 +386,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetItems(), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch All Pokemons #&p")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch All Pokemons #&p")]
         private static void FetchAllPokemons()
         {
             ClearConsole();
@@ -384,7 +394,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 1 #&1")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 1 #&1")]
         private static void FetchAllPokemonsGen1()
         {
             ClearConsole();
@@ -392,7 +402,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(151, 1), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 2 #&2")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 2 #&2")]
         private static void FetchAllPokemonsGen2()
         {
             ClearConsole();
@@ -400,7 +410,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(100, 152), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 3 #&3")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 3 #&3")]
         private static void FetchAllPokemonsGen3()
         {
             ClearConsole();
@@ -408,7 +418,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(135, 252), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 4 #&4")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 4 #&4")]
         private static void FetchAllPokemonsGen4()
         {
             ClearConsole();
@@ -416,7 +426,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(107, 387), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 5 #&5")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 5 #&5")]
         private static void FetchAllPokemonsGen5()
         {
             ClearConsole();
@@ -424,7 +434,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(156, 494), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 6 #&6")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 6 #&6")]
         private static void FetchAllPokemonsGen6()
         {
             ClearConsole();
@@ -432,7 +442,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(72, 650), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 7 #&7")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 7 #&7")]
         private static void FetchAllPokemonsGen7()
         {
             ClearConsole();
@@ -440,7 +450,7 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(88, 722), instance);
         }
 
-        [MenuItem("MrAmorphic/PokeApi/Pokemons/Fetch Gen 8 #&8")]
+        [MenuItem("MrAmorphic/PokeAPI/Pokemons/Fetch Gen 8 #&8")]
         private static void FetchAllPokemonsGen8()
         {
             ClearConsole();
@@ -495,9 +505,7 @@ namespace MrAmorphic
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToItemAssets}{keyItemsFolder}");
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToItemAssets}{heldItemsFolder}");
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToItemAssets}{evolutionItemsFolder}");
-
-            if (fetchSprites)
-                Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToItemAssets}{spritesFolder}");
+            Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToItemAssets}{spritesFolder}");
         }
 
         private void CreatePokemonFolders()
@@ -507,9 +515,7 @@ namespace MrAmorphic
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToPokemonAssets}{cacheFolder}Pokemon/");
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToPokemonAssets}{cacheFolder}Species/");
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToPokemonAssets}{cacheFolder}Evolution/");
-
-            if (fetchSprites)
-                Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToPokemonAssets}{spritesFolder}");
+            Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToPokemonAssets}{spritesFolder}");
         }
 
         private void CreateMoveFolders()
@@ -573,6 +579,12 @@ namespace MrAmorphic
             DateTime time = DateTime.Now;
 
             CreatePokemonFolders();
+
+            if (createItemStubIfNotExistForEvolution)
+                CreateItemFolders();
+
+            if (createMoveStubIfNotExistForPokemonMoves)
+                CreateMoveFolders();
 
             int countFetched = 0;
             for (int i = start; i < (start + count); i++)
@@ -871,7 +883,16 @@ namespace MrAmorphic
                     {
                         if (details.version_group.name == version_group)
                         {
-                            MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}") as MoveBase;
+                            MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+
+                            if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
+                            {
+                                MoveBase moveBase = CreateInstance<MoveBase>();
+                                AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
+                                yield return null;
+                                move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+                            }
+
                             if (move != null)
                             {
                                 pokemonToAdd.LearnableByItems.Add(move);
@@ -881,7 +902,16 @@ namespace MrAmorphic
 
                         if (details.version_group.name == version_group_secondary)
                         {
-                            MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}") as MoveBase;
+                            MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+
+                            if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
+                            {
+                                MoveBase moveBase = CreateInstance<MoveBase>();
+                                AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
+                                yield return null;
+                                move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+                            }
+
                             if (move != null)
                             {
                                 pokemonToAdd.LearnableByItems.Add(move);
@@ -894,19 +924,28 @@ namespace MrAmorphic
 
             pokemonToAdd.LearnableMoves = new List<LearnableMove>();
 
-            foreach (var m in pokemon.moves)
+            foreach (var moves in pokemon.moves)
             {
-                foreach (var d in m.version_group_details)
+                foreach (var details in moves.version_group_details)
                 {
-                    if (d.move_learn_method.name == "level-up" && d.version_group.name == version_group)
+                    if (details.move_learn_method.name == "level-up" && details.version_group.name == version_group)
                     {
-                        MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{m.move.name}");
+                        MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+
+                        if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
+                        {
+                            MoveBase moveBase = CreateInstance<MoveBase>();
+                            AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
+                            yield return null;
+                            move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+                        }
+
                         if (move != null)
                         {
                             var lm = new LearnableMove
                             {
                                 Base = move,
-                                Level = d.level_learned_at
+                                Level = details.level_learned_at
                             };
 
                             pokemonToAdd.LearnableMoves.Add(lm);
@@ -914,15 +953,24 @@ namespace MrAmorphic
                         break;
                     }
 
-                    if (d.move_learn_method.name == "level-up" && d.version_group.name == version_group_secondary)
+                    if (details.move_learn_method.name == "level-up" && details.version_group.name == version_group_secondary)
                     {
-                        MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{m.move.name}");
+                        MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+
+                        if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
+                        {
+                            MoveBase moveBase = CreateInstance<MoveBase>();
+                            AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
+                            yield return null;
+                            move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+                        }
+
                         if (move != null)
                         {
                             var lm = new LearnableMove
                             {
                                 Base = move,
-                                Level = d.level_learned_at
+                                Level = details.level_learned_at
                             };
 
                             pokemonToAdd.LearnableMoves.Add(lm);
