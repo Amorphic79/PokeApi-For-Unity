@@ -15,6 +15,16 @@ namespace MrAmorphic
     public enum PokemonDataType
     { Pokemon, Species, Evolution, }
 
+    public enum VersionGroup
+    {
+        latest, sword_shield, lets_go_pikachu_lets_go_eevee, ultra_sun_ultra_moon, sun_moon, omega_ruby_alpha_sapphire, x_y, black_2_white_2, xd, colosseum, black_white, heartgold_soulsilver, platinum, diamond_pearl, firered_leafgreen, emerald, ruby_sapphire, crystal, gold_silver, yellow, red_blue,
+    }
+
+    public enum Version
+    {
+        latest, shield, sword, lets_go_eevee, lets_go_pikachu, ultra_moon, ultra_sun, moon, sun, alpha_sapphire, omega_ruby, y, x, white_2, black_2, xd, colosseum, white, black, soulsilver, heartgold, platinum, pearl, diamond, leafgreen, firered, emerald, ruby, crystal, silver, gold, yellow, blue, red,
+    }
+
     public static class StringExtensions
     {
         public static string FirstCharToUpper(this string input) =>
@@ -101,17 +111,28 @@ namespace MrAmorphic
         {
             this.pokemon = (PokemonBase)this.target;
 
-            if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+            if (this.pokemon.Id > 0)
             {
                 pokeApi = CreateInstance<PokeApi>();
-                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemonData(this.pokemon.Id), this);
+
+                if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+                {
+                    EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemonData(this.pokemon.Id), this);
+                }
+
+                pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+                pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+                {
+                    this.ClearData();
+                }
             }
-
-            base.OnInspectorGUI();
-
-            if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+            else
             {
-                this.ClearData();
+                base.OnInspectorGUI();
             }
         }
 
@@ -193,15 +214,18 @@ namespace MrAmorphic
         private static string heldItemsFolder = "Held Items/";
         private static string evolutionItemsFolder = "Evolution Items/";
         private static string language = "en";
-        private static string version_group = "firered-leafgreen";
-        private static string version_group_secondary = "sword-shield";
-        private static string version = "firered";
-        private static string version_secondary = "shield";
+        private static VersionGroup version_group = VersionGroup.latest;
+        private static Version version = Version.latest;
         private static bool fetchSprites = true;
         private static bool createPokemonStubIfNotExistForEvolution = true;
         private static bool createItemStubIfNotExistForEvolution = true;
         private static bool createMoveStubIfNotExistForPokemonMoves = true;
         ///SETTINGS END////////////////////////////////////////////////////////////////////
+
+        public VersionGroup Version_group { get => version_group; set => version_group = value; }
+
+        public Version Version { get => version; set => version = value; }
+
         public static string FormatJson(string json, string indent = "    ")
         {
             var indentation = 0;
@@ -642,7 +666,15 @@ namespace MrAmorphic
 
             if (File.Exists(Application.dataPath + $"{pathToResources}{pathToItemAssets}{folder}{item.name}.asset"))
             {
-                itemToAdd = AssetDatabase.LoadAssetAtPath<ItemBase>($"Assets/{pathToResources}{pathToItemAssets}{item.name}.asset");
+                itemToAdd = AssetDatabase.LoadAssetAtPath<ItemBase>($"Assets/{pathToResources}{pathToItemAssets}{folder}{item.name}.asset");
+
+                yield return new WaitForEndOfFrame();
+                if (itemToAdd == null)
+                {
+                    Debug.Log("File failed to load");
+                }
+                yield return new WaitForEndOfFrame();
+
                 EditorUtility.SetDirty(itemToAdd);
             }
             else
@@ -691,8 +723,8 @@ namespace MrAmorphic
 
             itemToAdd.Description = item.flavor_text_entries switch
             {
-                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group).text,
-                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group_secondary) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group_secondary).text,
+                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")).text,
+                //var x when x.Count(n => n.language.name == language && n.version_group.name == version_group_secondary) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group_secondary).text,
                 var x when x.Count(n => n.language.name == language) > 0 => x.First(n => n.language.name == language).text,
                 _ => string.Empty,
             };
@@ -746,8 +778,8 @@ namespace MrAmorphic
             moveToAdd.Accuracy = move.accuracy;
             moveToAdd.Description = move.flavor_text_entries switch
             {
-                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group).flavor_text,
-                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group_secondary) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group_secondary).flavor_text,
+                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")).flavor_text,
+                //var x when x.Count(n => n.language.name == language && n.version_group.name == version_group_secondary) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group_secondary).flavor_text,
                 var x when x.Count(n => n.language.name == language) > 0 => x.First(n => n.language.name == language).flavor_text,
                 _ => string.Empty,
             };
@@ -817,13 +849,31 @@ namespace MrAmorphic
             pokemonToAdd.ExpYield = pokemon.base_experience;
             pokemonToAdd.CatchRate = species.capture_rate;
 
-            pokemonToAdd.Description = pokemon.species_data.flavor_text_entries switch
+            pokemonToAdd.Description = string.Empty;
+
+            if (version == Version.latest)
             {
-                var x when x.Count(n => n.language.name == language && n.version.name == version) > 0 => x.First(n => n.language.name == language && n.version.name == version).flavor_text,
-                var x when x.Count(n => n.language.name == language && n.version.name == version_secondary) > 0 => x.First(n => n.language.name == language && n.version.name == version_secondary).flavor_text,
-                var x when x.Count(n => n.language.name == language) > 0 => x.First(n => n.language.name == language).flavor_text,
-                _ => string.Empty,
-            };
+                foreach (var ver in Enum.GetValues(typeof(Version)))
+                {
+                    var str = ver.ToString().Replace("_", "-");
+
+                    if (str == "latest")
+                        continue;
+
+                    if (pokemon.species_data.flavor_text_entries.Count(n => n.language.name == language && n.version.name == str) > 0)
+                    {
+                        pokemonToAdd.Description = pokemon.species_data.flavor_text_entries.First(n => n.language.name == language && n.version.name == str).flavor_text;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (pokemon.species_data.flavor_text_entries.Count(n => n.language.name == language && n.version.name == version.ToString().Replace("_", "-")) > 0)
+                {
+                    pokemonToAdd.Description = pokemon.species_data.flavor_text_entries.First(n => n.language.name == language && n.version.name == version.ToString().Replace("_", "-")).flavor_text;
+                }
+            }
 
             pokemonToAdd.Name = Array.Find(pokemon.species_data.names, n => n.language.name == language).name;
             pokemonToAdd.Id = pokemon.id;
@@ -874,6 +924,7 @@ namespace MrAmorphic
             }
 
             pokemonToAdd.LearnableByItems = new List<MoveBase>();
+            pokemonToAdd.LearnableMoves = new List<LearnableMove>();
 
             foreach (var moves in pokemon.moves)
             {
@@ -881,7 +932,36 @@ namespace MrAmorphic
                 {
                     if (details.move_learn_method.name == "machine")
                     {
-                        if (details.version_group.name == version_group)
+                        if (version_group == VersionGroup.latest)
+                        {
+                            foreach (var ver in Enum.GetValues(typeof(VersionGroup)))
+                            {
+                                var str = ver.ToString().Replace("_", "-");
+
+                                if (str == "latest")
+                                    continue;
+
+                                if (details.version_group.name == str)
+                                {
+                                    MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+
+                                    if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
+                                    {
+                                        MoveBase moveBase = CreateInstance<MoveBase>();
+                                        AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
+                                        yield return null;
+                                        move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+                                    }
+
+                                    if (move != null && pokemonToAdd.LearnableByItems.Count(m => m == move) == 0)
+                                    {
+                                        pokemonToAdd.LearnableByItems.Add(move);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else if (details.version_group.name == version_group.ToString().Replace("_", "-"))
                         {
                             MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
 
@@ -893,14 +973,51 @@ namespace MrAmorphic
                                 move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
                             }
 
-                            if (move != null)
+                            if (move != null && pokemonToAdd.LearnableByItems.Count(m => m == move) == 0)
                             {
                                 pokemonToAdd.LearnableByItems.Add(move);
                                 break;
                             }
                         }
+                    }
+                    else if (details.move_learn_method.name == "level-up")
+                    {
+                        if (version_group == VersionGroup.latest)
+                        {
+                            foreach (var ver in Enum.GetValues(typeof(VersionGroup)))
+                            {
+                                var str = ver.ToString().Replace("_", "-");
 
-                        if (details.version_group.name == version_group_secondary)
+                                if (str == "latest")
+                                    continue;
+
+                                if (details.version_group.name == str)
+                                {
+                                    MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+
+                                    if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
+                                    {
+                                        MoveBase moveBase = CreateInstance<MoveBase>();
+                                        AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
+                                        yield return null;
+                                        move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
+                                    }
+
+                                    if (move != null && pokemonToAdd.LearnableMoves.Count(m => m.Base == move) == 0)
+                                    {
+                                        var lm = new LearnableMove
+                                        {
+                                            Base = move,
+                                            Level = details.level_learned_at
+                                        };
+
+                                        pokemonToAdd.LearnableMoves.Add(lm);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else if (details.version_group.name == version_group.ToString().Replace("_", "-"))
                         {
                             MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
 
@@ -912,70 +1029,18 @@ namespace MrAmorphic
                                 move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
                             }
 
-                            if (move != null)
+                            if (move != null && pokemonToAdd.LearnableMoves.Count(m => m.Base == move && m.Level == details.level_learned_at) == 0)
                             {
-                                pokemonToAdd.LearnableByItems.Add(move);
-                                break;
+                                var lm = new LearnableMove
+                                {
+                                    Base = move,
+                                    Level = details.level_learned_at
+                                };
+
+                                pokemonToAdd.LearnableMoves.Add(lm);
                             }
+                            break;
                         }
-                    }
-                }
-            }
-
-            pokemonToAdd.LearnableMoves = new List<LearnableMove>();
-
-            foreach (var moves in pokemon.moves)
-            {
-                foreach (var details in moves.version_group_details)
-                {
-                    if (details.move_learn_method.name == "level-up" && details.version_group.name == version_group)
-                    {
-                        MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
-
-                        if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
-                        {
-                            MoveBase moveBase = CreateInstance<MoveBase>();
-                            AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
-                            yield return null;
-                            move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
-                        }
-
-                        if (move != null)
-                        {
-                            var lm = new LearnableMove
-                            {
-                                Base = move,
-                                Level = details.level_learned_at
-                            };
-
-                            pokemonToAdd.LearnableMoves.Add(lm);
-                        }
-                        break;
-                    }
-
-                    if (details.move_learn_method.name == "level-up" && details.version_group.name == version_group_secondary)
-                    {
-                        MoveBase move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
-
-                        if (move == null && createMoveStubIfNotExistForPokemonMoves && moves.move.name?.Length > 0)
-                        {
-                            MoveBase moveBase = CreateInstance<MoveBase>();
-                            AssetDatabase.CreateAsset(moveBase, $"Assets{pathToResources}{pathToMoveAssets}{moves.move.name}.asset");
-                            yield return null;
-                            move = Resources.Load<MoveBase>($"{pathToMoveAssets}{moves.move.name}");
-                        }
-
-                        if (move != null)
-                        {
-                            var lm = new LearnableMove
-                            {
-                                Base = move,
-                                Level = details.level_learned_at
-                            };
-
-                            pokemonToAdd.LearnableMoves.Add(lm);
-                        }
-                        break;
                     }
                 }
             }
@@ -1017,7 +1082,7 @@ namespace MrAmorphic
                     {
                         case "level-up":
                             if (detail.min_level == 0)
-                                break;
+                                continue;
 
                             Evolution evolutionLevelUp = new Evolution();
                             evolutionLevelUp.RequiredLevel = detail.min_level;
