@@ -61,6 +61,8 @@ and if you want to blank files for Pokemons/Items that are missing when adding e
 <ul>
 <li>Added enums for Version and VersionGroup, making it easier to select which game so fetch data from. There is also a selection for "Lastest" which goes through all games and finds the latest game in which the data was present.</li>
 <li>Fixed that moves don't get duplicates in LearnableMove or LearnableByItem</li>
+<li>Added a settings window instead of having the settings hidden in code. Window -> MrAmorphic -> PokeAPI Settings.</li>
+<li>Added custom editors for subitems (pokeball, recovery etc) this only updates the current item.
 </ul>
 </li>
 </ul>
