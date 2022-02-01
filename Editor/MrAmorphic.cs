@@ -25,6 +25,11 @@ namespace MrAmorphic
         latest, shield, sword, lets_go_eevee, lets_go_pikachu, ultra_moon, ultra_sun, moon, sun, alpha_sapphire, omega_ruby, y, x, white_2, black_2, xd, colosseum, white, black, soulsilver, heartgold, platinum, pearl, diamond, leafgreen, firered, emerald, ruby, crystal, silver, gold, yellow, blue, red,
     }
 
+    public enum Language
+    {
+        en, ja, ko, fr, de, es,
+    }
+
     public static class StringExtensions
     {
         public static string FirstCharToUpper(this string input) =>
@@ -60,28 +65,137 @@ namespace MrAmorphic
         }
     }
 
+    public class PokeApiSettings : EditorWindow
+    {
+        private PokeApi pokeApi;
+        private bool groupEnabled;
+
+        [MenuItem("Window/MrAmorphic/PokeAPI Settings")]
+        public static void ShowWindow()
+        {
+            EditorWindow.GetWindow(typeof(PokeApiSettings));
+        }
+
+        private void OnGUI()
+        {
+            if (pokeApi == null)
+                pokeApi = ScriptableObject.CreateInstance<PokeApi>();
+
+            GUILayout.Label("Version Settings", EditorStyles.boldLabel);
+            pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+            pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+            pokeApi.Language = (Language)EditorGUILayout.EnumPopup("Language", pokeApi.Language);
+            if (GUILayout.Button("Create Folders", GUILayout.Height(20)))
+            {
+                PokeApi.CreateFolders();
+            }
+            GUILayout.Label("Items & Moves", EditorStyles.boldLabel);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create Items", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetItems(), this);
+            }
+            if (GUILayout.Button("Create Moves", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetMoves(), this);
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.Label("Pokemons", EditorStyles.boldLabel);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Gen 1", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(151, 1), this);
+            }
+            if (GUILayout.Button("Gen 2", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(100, 152), this);
+            }
+            if (GUILayout.Button("Gen 3", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(135, 252), this);
+            }
+            if (GUILayout.Button("Gen 4", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(107, 387), this);
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Gen 5", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(156, 494), this);
+            }
+            if (GUILayout.Button("Gen 6", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(72, 650), this);
+            }
+            if (GUILayout.Button("Gen 7", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(88, 722), this);
+            }
+            if (GUILayout.Button("Gen 8", GUILayout.Height(30)))
+            {
+                EditorCoroutineUtility.StartCoroutine(pokeApi.GetPokemons(89, 810), this);
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.Label("\n", EditorStyles.boldLabel);
+            groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
+            if (groupEnabled)
+            {
+                GUILayout.Label("Folder Paths", EditorStyles.boldLabel);
+                pokeApi.PathToResources = EditorGUILayout.TextField("Resources", pokeApi.PathToResources);
+                pokeApi.CacheFolder = EditorGUILayout.TextField("Cache", pokeApi.CacheFolder);
+                pokeApi.PathToMoveAssets = EditorGUILayout.TextField("Moves", pokeApi.PathToMoveAssets);
+                pokeApi.PathToPokemonAssets = EditorGUILayout.TextField("Pokemons", pokeApi.PathToPokemonAssets);
+                pokeApi.PathToItemAssets = EditorGUILayout.TextField("Items", pokeApi.PathToItemAssets);
+                GUILayout.Label("Item Subfolders", EditorStyles.boldLabel);
+                pokeApi.PokeballsFolder = EditorGUILayout.TextField("Poke Balls", pokeApi.PokeballsFolder);
+                pokeApi.HealingFolder = EditorGUILayout.TextField("Medicine", pokeApi.HealingFolder);
+                pokeApi.ItemsFolder = EditorGUILayout.TextField("Items", pokeApi.ItemsFolder);
+                pokeApi.BattleItemsFolder = EditorGUILayout.TextField("Battle Items", pokeApi.BattleItemsFolder);
+                pokeApi.MachinesFolder = EditorGUILayout.TextField("Machines (TM&HM)", pokeApi.MachinesFolder);
+                pokeApi.KeyItemsFolder = EditorGUILayout.TextField("Key Items", pokeApi.KeyItemsFolder);
+                pokeApi.HeldItemsFolder = EditorGUILayout.TextField("Held Items", pokeApi.HeldItemsFolder);
+                pokeApi.EvolutionItemsFolder = EditorGUILayout.TextField("Evolution Items", pokeApi.EvolutionItemsFolder);
+            }
+            EditorGUILayout.EndToggleGroup();
+        }
+    }
+
     [CustomEditor(typeof(MoveBase))]
     [ExecuteInEditMode]
     public class MoveBaseEditor : Editor
     {
         private MoveBase move;
+        private PokeApi pokeApi;
 
         public override void OnInspectorGUI()
         {
             this.move = (MoveBase)this.target;
-            PokeApi pokeApi;
 
-            if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+            if (this.move.Id > 0)
             {
                 pokeApi = CreateInstance<PokeApi>();
-                EditorCoroutineUtility.StartCoroutine(pokeApi.GetMoveData(this.move.Id), this);
+
+                if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+                {
+                    EditorCoroutineUtility.StartCoroutine(pokeApi.GetMoveData(this.move.Id), this);
+                }
+
+                pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+                pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+                {
+                    this.ClearMoveData();
+                }
             }
-
-            base.OnInspectorGUI();
-
-            if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+            else
             {
-                this.ClearMoveData();
+                base.OnInspectorGUI();
             }
         }
 
@@ -160,6 +274,176 @@ namespace MrAmorphic
         }
     }
 
+    [CustomEditor(typeof(EvolutionItem))]
+    [ExecuteInEditMode]
+    public class EvolutionItemEditor : Editor
+    {
+        private EvolutionItem item;
+        private PokeApi pokeApi;
+
+        public override void OnInspectorGUI()
+        {
+            this.item = (EvolutionItem)this.target;
+            if (this.item.Id > 0)
+            {
+                pokeApi = CreateInstance<PokeApi>();
+
+                if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+                {
+                    EditorCoroutineUtility.StartCoroutine(pokeApi.GetItemData(this.item.Id), this);
+                }
+
+                pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+                pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+                {
+                    this.ClearData();
+                }
+            }
+            else
+            {
+                base.OnInspectorGUI();
+            }
+        }
+
+        private void ClearData()
+        {
+            this.item.CanUseInBattle = false;
+            this.item.CanUseOutsideBattle = false;
+            this.item.Name = string.Empty;
+        }
+    }
+
+    [CustomEditor(typeof(TmItem))]
+    [ExecuteInEditMode]
+    public class TmItemEditor : Editor
+    {
+        private TmItem item;
+        private PokeApi pokeApi;
+
+        public override void OnInspectorGUI()
+        {
+            this.item = (TmItem)this.target;
+            if (this.item.Id > 0)
+            {
+                pokeApi = CreateInstance<PokeApi>();
+
+                if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+                {
+                    EditorCoroutineUtility.StartCoroutine(pokeApi.GetItemData(this.item.Id), this);
+                }
+
+                pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+                pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+                {
+                    this.ClearData();
+                }
+            }
+            else
+            {
+                base.OnInspectorGUI();
+            }
+        }
+
+        private void ClearData()
+        {
+            this.item.CanUseInBattle = false;
+            this.item.CanUseOutsideBattle = false;
+            this.item.Name = string.Empty;
+        }
+    }
+
+    [CustomEditor(typeof(RecoveryItem))]
+    [ExecuteInEditMode]
+    public class RecoveryItemEditor : Editor
+    {
+        private RecoveryItem item;
+        private PokeApi pokeApi;
+
+        public override void OnInspectorGUI()
+        {
+            this.item = (RecoveryItem)this.target;
+            if (this.item.Id > 0)
+            {
+                pokeApi = CreateInstance<PokeApi>();
+                if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+                {
+                    EditorCoroutineUtility.StartCoroutine(pokeApi.GetItemData(this.item.Id), this);
+                }
+
+                pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+                pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+                {
+                    this.ClearData();
+                }
+            }
+            else
+            {
+                base.OnInspectorGUI();
+            }
+        }
+
+        private void ClearData()
+        {
+            this.item.CanUseInBattle = false;
+            this.item.CanUseOutsideBattle = false;
+            this.item.Name = string.Empty;
+        }
+    }
+
+    [CustomEditor(typeof(PokeballItem))]
+    [ExecuteInEditMode]
+    public class PokeballItemEditor : Editor
+    {
+        private PokeballItem item;
+        private PokeApi pokeApi;
+
+        public override void OnInspectorGUI()
+        {
+            this.item = (PokeballItem)this.target;
+            if (this.item.Id > 0)
+            {
+                pokeApi = CreateInstance<PokeApi>();
+                if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+                {
+                    EditorCoroutineUtility.StartCoroutine(pokeApi.GetItemData(this.item.Id), this);
+                }
+
+                pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+                pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+                {
+                    this.ClearData();
+                }
+            }
+            else
+            {
+                base.OnInspectorGUI();
+            }
+        }
+
+        private void ClearData()
+        {
+            this.item.CanUseInBattle = false;
+            this.item.CanUseOutsideBattle = false;
+            this.item.Name = string.Empty;
+        }
+    }
+
     [CustomEditor(typeof(ItemBase))]
     [ExecuteInEditMode]
     public class ItemBaseEditor : Editor
@@ -171,17 +455,27 @@ namespace MrAmorphic
         {
             this.item = (ItemBase)this.target;
 
-            if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+            if (this.item.Id > 0)
             {
                 pokeApi = CreateInstance<PokeApi>();
-                EditorCoroutineUtility.StartCoroutine(pokeApi.GetItemData(this.item.Id), this);
+                if (GUILayout.Button("Update Data", GUILayout.Height(40)))
+                {
+                    EditorCoroutineUtility.StartCoroutine(pokeApi.GetItemData(this.item.Id), this);
+                }
+
+                pokeApi.Version_group = (VersionGroup)EditorGUILayout.EnumPopup("Version Group", pokeApi.Version_group);
+                pokeApi.Version = (Version)EditorGUILayout.EnumPopup("Version", pokeApi.Version);
+
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+                {
+                    this.ClearData();
+                }
             }
-
-            base.OnInspectorGUI();
-
-            if (GUILayout.Button("Clear Data", GUILayout.Height(40)))
+            else
             {
-                this.ClearData();
+                base.OnInspectorGUI();
             }
         }
 
@@ -197,8 +491,6 @@ namespace MrAmorphic
     {
         private static PokeApi instance;
         private static bool fetchError = false;
-
-        ///SETTINGS ///////////////////////////////////////////////////////////////////////
         private static string pathToResources = "/Game/Resources/";
         private static string pathToMoveAssets = "Moves/Test/";
         private static string pathToItemAssets = "Items/Test/";
@@ -213,18 +505,34 @@ namespace MrAmorphic
         private static string keyItemsFolder = "Key Items/";
         private static string heldItemsFolder = "Held Items/";
         private static string evolutionItemsFolder = "Evolution Items/";
-        private static string language = "en";
+        private static Language language = Language.en;
         private static VersionGroup version_group = VersionGroup.latest;
         private static Version version = Version.latest;
         private static bool fetchSprites = true;
         private static bool createPokemonStubIfNotExistForEvolution = true;
         private static bool createItemStubIfNotExistForEvolution = true;
         private static bool createMoveStubIfNotExistForPokemonMoves = true;
-        ///SETTINGS END////////////////////////////////////////////////////////////////////
-
         public VersionGroup Version_group { get => version_group; set => version_group = value; }
-
         public Version Version { get => version; set => version = value; }
+        public string PathToResources { get => pathToResources; set => pathToResources = value; }
+        public string PathToMoveAssets { get => pathToMoveAssets; set => pathToMoveAssets = value; }
+        public string PathToItemAssets { get => pathToItemAssets; set => pathToItemAssets = value; }
+        public string PathToPokemonAssets { get => pathToPokemonAssets; set => pathToPokemonAssets = value; }
+        public string CacheFolder { get => cacheFolder; set => cacheFolder = value; }
+        public string SpritesFolder { get => spritesFolder; set => spritesFolder = value; }
+        public string PokeballsFolder { get => pokeballsFolder; set => pokeballsFolder = value; }
+        public string HealingFolder { get => healingFolder; set => healingFolder = value; }
+        public string ItemsFolder { get => itemsFolder; set => itemsFolder = value; }
+        public string BattleItemsFolder { get => battleItemsFolder; set => battleItemsFolder = value; }
+        public string MachinesFolder { get => machinesFolder; set => machinesFolder = value; }
+        public string KeyItemsFolder { get => keyItemsFolder; set => keyItemsFolder = value; }
+        public string HeldItemsFolder { get => heldItemsFolder; set => heldItemsFolder = value; }
+        public string EvolutionItemsFolder { get => evolutionItemsFolder; set => evolutionItemsFolder = value; }
+        public bool FetchSprites { get => fetchSprites; set => fetchSprites = value; }
+        public bool CreatePokemonStubIfNotExistForEvolution { get => createPokemonStubIfNotExistForEvolution; set => createPokemonStubIfNotExistForEvolution = value; }
+        public bool CreateItemStubIfNotExistForEvolution { get => createItemStubIfNotExistForEvolution; set => createItemStubIfNotExistForEvolution = value; }
+        public bool CreateMoveStubIfNotExistForPokemonMoves { get => createMoveStubIfNotExistForPokemonMoves; set => createMoveStubIfNotExistForPokemonMoves = value; }
+        public Language Language { get => language; set => language = value; }
 
         public static string FormatJson(string json, string indent = "    ")
         {
@@ -247,6 +555,15 @@ namespace MrAmorphic
                 );
 
             return string.Concat(result);
+        }
+
+        [MenuItem("MrAmorphic/PokeAPI/Create Folders #&f")]
+        public static void CreateFolders()
+        {
+            instance = CreateInstance<PokeApi>();
+            instance.CreateItemFolders();
+            instance.CreatePokemonFolders();
+            instance.CreateMoveFolders();
         }
 
         public IEnumerator GetMoveData(int index)
@@ -377,13 +694,98 @@ namespace MrAmorphic
             }
         }
 
-        [MenuItem("MrAmorphic/PokeAPI/Create Folders #&f")]
-        private static void CreateFolders()
+        public IEnumerator GetItems(int count = 749, int start = 1)
         {
+            DateTime time = DateTime.Now;
+            int countFetched = 0;
+            CreateItemFolders();
             instance = CreateInstance<PokeApi>();
-            instance.CreateItemFolders();
-            instance.CreatePokemonFolders();
-            instance.CreateMoveFolders();
+
+            List<int> missingItemsIDs = new List<int>() { 667, 672, 680, };
+
+            for (int i = start; i < (start + count); i++)
+            {
+                if (missingItemsIDs.Contains(i))// Item is missing, skip to next
+                    continue;
+
+                yield return instance.GetItemData(i);
+
+                if (fetchError)
+                    break;
+
+                countFetched++;
+            }
+
+            TimeSpan t = DateTime.Now.Subtract(time);
+            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
+
+            Debug.Log($"{countFetched} items fetched in {answer}.");
+        }
+
+        public IEnumerator FetchEverythingCO()
+        {
+            DateTime time = DateTime.Now;
+            yield return GetMoves();
+            yield return GetItems();
+            yield return GetPokemons();
+            AssetDatabase.Refresh();
+            TimeSpan t = DateTime.Now.Subtract(time);
+            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
+
+            Debug.Log($"Fetched everything in {answer}.");
+        }
+
+        public IEnumerator GetMoves(int count = 826, int start = 1)
+        {
+            DateTime time = DateTime.Now;
+
+            CreateMoveFolders();
+            instance = CreateInstance<PokeApi>();
+            int countFetched = 0;
+            for (int i = start; i < (start + count); i++)
+            {
+                yield return instance.GetMoveData(i);
+
+                if (fetchError)
+                    break;
+
+                countFetched++;
+            }
+
+            TimeSpan t = DateTime.Now.Subtract(time);
+            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
+
+            Debug.Log($"{countFetched} moves fetched in {answer}.");
+        }
+
+        public IEnumerator GetPokemons(int count = 898, int start = 1)
+        {
+            DateTime time = DateTime.Now;
+
+            CreatePokemonFolders();
+            instance = CreateInstance<PokeApi>();
+
+            if (createItemStubIfNotExistForEvolution)
+                CreateItemFolders();
+
+            if (createMoveStubIfNotExistForPokemonMoves)
+                CreateMoveFolders();
+
+            int countFetched = 0;
+            for (int i = start; i < (start + count); i++)
+            {
+                yield return instance.GetPokemonData(i);
+
+                if (fetchError)
+                    break;
+
+                countFetched++;
+            }
+
+            TimeSpan t = DateTime.Now.Subtract(time);
+            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
+
+            Debug.Log($"{countFetched} pokemons fetched in {answer}.");
         }
 
         [MenuItem("MrAmorphic/PokeAPI/ALL/Fetch All")]
@@ -490,19 +892,6 @@ namespace MrAmorphic
             method.Invoke(new object(), null);
         }
 
-        private IEnumerator FetchEverythingCO()
-        {
-            DateTime time = DateTime.Now;
-            yield return GetMoves();
-            yield return GetItems();
-            yield return GetPokemons();
-            AssetDatabase.Refresh();
-            TimeSpan t = DateTime.Now.Subtract(time);
-            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
-
-            Debug.Log($"Fetched everything in {answer}.");
-        }
-
         private IEnumerator DownloadSprite(string url, string fileToSave)
         {
             if (url?.Length == 0)
@@ -546,85 +935,6 @@ namespace MrAmorphic
         {
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToMoveAssets}");
             Directory.CreateDirectory(Application.dataPath + $"{pathToResources}{pathToMoveAssets}{cacheFolder}");
-        }
-
-        private IEnumerator GetItems(int count = 749, int start = 1)
-        {
-            DateTime time = DateTime.Now;
-            int countFetched = 0;
-            CreateItemFolders();
-
-            List<int> missingItemsIDs = new List<int>() { 667, 672, 680, };
-
-            for (int i = start; i < (start + count); i++)
-            {
-                if (missingItemsIDs.Contains(i))// Item is missing, skip to next
-                    continue;
-
-                yield return instance.GetItemData(i);
-
-                if (fetchError)
-                    break;
-
-                countFetched++;
-            }
-
-            TimeSpan t = DateTime.Now.Subtract(time);
-            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
-
-            Debug.Log($"{countFetched} items fetched in {answer}.");
-        }
-
-        private IEnumerator GetMoves(int count = 826, int start = 1)
-        {
-            DateTime time = DateTime.Now;
-
-            CreateMoveFolders();
-
-            int countFetched = 0;
-            for (int i = start; i < (start + count); i++)
-            {
-                yield return instance.GetMoveData(i);
-
-                if (fetchError)
-                    break;
-
-                countFetched++;
-            }
-
-            TimeSpan t = DateTime.Now.Subtract(time);
-            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
-
-            Debug.Log($"{countFetched} moves fetched in {answer}.");
-        }
-
-        private IEnumerator GetPokemons(int count = 898, int start = 1)
-        {
-            DateTime time = DateTime.Now;
-
-            CreatePokemonFolders();
-
-            if (createItemStubIfNotExistForEvolution)
-                CreateItemFolders();
-
-            if (createMoveStubIfNotExistForPokemonMoves)
-                CreateMoveFolders();
-
-            int countFetched = 0;
-            for (int i = start; i < (start + count); i++)
-            {
-                yield return instance.GetPokemonData(i);
-
-                if (fetchError)
-                    break;
-
-                countFetched++;
-            }
-
-            TimeSpan t = DateTime.Now.Subtract(time);
-            string answer = string.Format("{0:D2}m:{1:D2}s", t.Minutes, t.Seconds);
-
-            Debug.Log($"{countFetched} pokemons fetched in {answer}.");
         }
 
         private IEnumerator ProcessItemData(string data)
@@ -704,7 +1014,7 @@ namespace MrAmorphic
                 yield break;
             }
 
-            itemToAdd.Name = item.names.First(n => n.language.name == language).name;
+            itemToAdd.Name = item.names.First(n => n.language.name == language.ToString().Replace("_", "-")).name;
 
             if (fetchSprites)
             {
@@ -723,9 +1033,8 @@ namespace MrAmorphic
 
             itemToAdd.Description = item.flavor_text_entries switch
             {
-                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")).text,
-                //var x when x.Count(n => n.language.name == language && n.version_group.name == version_group_secondary) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group_secondary).text,
-                var x when x.Count(n => n.language.name == language) > 0 => x.First(n => n.language.name == language).text,
+                var x when x.Count(n => n.language.name == language.ToString().Replace("_", "-") && n.version_group.name == version_group.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language.ToString().Replace("_", "-") && n.version_group.name == version_group.ToString().Replace("_", "-")).text,
+                var x when x.Count(n => n.language.name == language.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language.ToString().Replace("_", "-")).text,
                 _ => string.Empty,
             };
 
@@ -774,13 +1083,12 @@ namespace MrAmorphic
             Selection.activeObject = moveToAdd;
 
             moveToAdd.Id = move.id;
-            moveToAdd.Name = move.names.First(n => n.language.name == language).name;
+            moveToAdd.Name = move.names.First(n => n.language.name == language.ToString().Replace("_", "-")).name;
             moveToAdd.Accuracy = move.accuracy;
             moveToAdd.Description = move.flavor_text_entries switch
             {
-                var x when x.Count(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group.ToString().Replace("_", "-")).flavor_text,
-                //var x when x.Count(n => n.language.name == language && n.version_group.name == version_group_secondary) > 0 => x.First(n => n.language.name == language && n.version_group.name == version_group_secondary).flavor_text,
-                var x when x.Count(n => n.language.name == language) > 0 => x.First(n => n.language.name == language).flavor_text,
+                var x when x.Count(n => n.language.name == language.ToString().Replace("_", "-") && n.version_group.name == version_group.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language.ToString().Replace("_", "-") && n.version_group.name == version_group.ToString().Replace("_", "-")).flavor_text,
+                var x when x.Count(n => n.language.name == language.ToString().Replace("_", "-")) > 0 => x.First(n => n.language.name == language.ToString().Replace("_", "-")).flavor_text,
                 _ => string.Empty,
             };
             moveToAdd.Power = move.power;
@@ -860,22 +1168,22 @@ namespace MrAmorphic
                     if (str == "latest")
                         continue;
 
-                    if (pokemon.species_data.flavor_text_entries.Count(n => n.language.name == language && n.version.name == str) > 0)
+                    if (pokemon.species_data.flavor_text_entries.Count(n => n.language.name == language.ToString().Replace("_", "-") && n.version.name == str) > 0)
                     {
-                        pokemonToAdd.Description = pokemon.species_data.flavor_text_entries.First(n => n.language.name == language && n.version.name == str).flavor_text;
+                        pokemonToAdd.Description = pokemon.species_data.flavor_text_entries.First(n => n.language.name == language.ToString().Replace("_", "-") && n.version.name == str).flavor_text;
                         break;
                     }
                 }
             }
             else
             {
-                if (pokemon.species_data.flavor_text_entries.Count(n => n.language.name == language && n.version.name == version.ToString().Replace("_", "-")) > 0)
+                if (pokemon.species_data.flavor_text_entries.Count(n => n.language.name == language.ToString().Replace("_", "-") && n.version.name == version.ToString().Replace("_", "-")) > 0)
                 {
-                    pokemonToAdd.Description = pokemon.species_data.flavor_text_entries.First(n => n.language.name == language && n.version.name == version.ToString().Replace("_", "-")).flavor_text;
+                    pokemonToAdd.Description = pokemon.species_data.flavor_text_entries.First(n => n.language.name == language.ToString().Replace("_", "-") && n.version.name == version.ToString().Replace("_", "-")).flavor_text;
                 }
             }
 
-            pokemonToAdd.Name = Array.Find(pokemon.species_data.names, n => n.language.name == language).name;
+            pokemonToAdd.Name = Array.Find(pokemon.species_data.names, n => n.language.name == language.ToString().Replace("_", "-")).name;
             pokemonToAdd.Id = pokemon.id;
             pokemonToAdd.PokeApiPokemon = pokemon;
 
