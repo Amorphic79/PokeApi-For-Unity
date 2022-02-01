@@ -70,5 +70,6 @@ and if you want to blank files for Pokemons/Items that are missing when adding e
 <li>Gen 8 Pokemon don't get moves added. They don't exist in the API.</li>
 <li>Other evolutions than Level-Up or Use-Item doesn't get added. No support in code yet.</li>
 <li>Item sprites get duplicates downloaded. Many TMs use the same sprite, but in the API they are unique.</li>
+<li>Some data is missing from the assets. Not in API. Example is how much health a Potion gives, or if the item can be used in battle. Same for TMs, this doesn't fill in the move just creates the asset and fills in the text.</li>
 </ul>
     
