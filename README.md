@@ -54,3 +54,21 @@ First you can check the settings in MrAmorphic.cs around line 180. <br>
 These are the folders where everything is created, wich language to use and wich game to get texts from.<br>
 And the last bools are if you want the sprites to be downloaded and added for pokemons and items.<br>
 and if you want to blank files for Pokemons/Items that are missing when adding evolutions. If a Pokemon/Item is missing, the evolution won't be added.<br>
+
+<h2>Changelog</h2>
+<ul>
+<li><b>2022-02-01</b><br>
+<ul>
+<li>Added enums for Version and VersionGroup, making it easier to select which game so fetch data from. There is also a selection for "Lastest" which goes through all games and finds the latest game in which the data was present.</li>
+<li>Fixed that moves don't get duplicates in LearnableMove or LearnableByItem</li>
+</ul>
+</li>
+</ul>
+  
+<h2>Known errors</h2>
+<ul>
+<li>Gen 8 Pokemon don't get moves added. They don't exist in the API.</li>
+<li>Other evolutions than Level-Up or Use-Item doesn't get added. No support in code yet.</li>
+<li>Item sprites get duplicates downloaded. Many TMs use the same sprite, but in the API they are unique.</li>
+</ul>
+    
