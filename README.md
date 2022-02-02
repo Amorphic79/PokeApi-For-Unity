@@ -36,7 +36,7 @@ Full list of conditions missing is:<br>
 <b>yawn, trap, disable, leech_seed, unknown,nightmare, no_type_immunity, perish_song,<br>
 infatuation, torment, ingrain, embargo, heal_block, silence, tar_shot</b><br>
 <p>
-Rename stats SpAttack and SpDefense, to Special_attack, Special_defense (again use F2 in Visual Studio)
+  Rename in the <b>enum</b> Stats the fields SpAttack and SpDefense, to Special_attack, Special_defense (again use F2 in Visual Studio)
 <p>
 
 When this is done, we need to add setters for ALL fields in
