@@ -1,77 +1,106 @@
 # PokeApi-For-Unity
 
-This is a data fetcher/asset creator for Unity, specifically Game Dev Experiences How to make a Pokemon Game series on youtube.<br>
+This is a data fetcher/asset creator for Unity, specifically Game Dev Experiences How to make a Pokemon Game series on youtube.
 
-MrAmorphic.cs needs to be in a folder called Editor. PokeApi.cs can be in anything other than the editor folder.<br>
-After importing these two files into your project you will see many errors, so let's fix them.<br>
+`!! If you have my previous PokeApi.cs script, REMOVE IT FIRST !!`
 
-<b>!! If you have my previous PokeApi.cs script, remove it first !!</b><br>
+**MrAmorphic.cs** needs to be in a folder called **Editor**. **PokeApi.cs** can be in anything other than the editor folder.
+After importing these two files into your project you will see many errors, so let's fix them.
 
-First we need to install the Unity package EditorCoroutines
-Window -> Package Manager<br>
+## EditorCoroutines
+First we need to install the Unity package **EditorCoroutines**
 
-This is a pre-release package so you need to enable pre-releases by going to<br>
-Gear -> Advanced project settings -> Enable pre-release and then
-Install Editor Coroutines -> restart Unity<br>
-<br>
-Now we need to add an integer called id to MoveBase, ItemBase and PokemonBase and give them getters/setters<br>
+`Window -> Package Manager`
 
-<b>PokemonBase.cs add</b><br>
-[SerializeField] MrAmorphic.PokeApiPokemon pokeApiPokemon; 
+This is a pre-release package so you need to enable pre-releases by going to
 
-<b>MoveBase.cs add</b><br>
+`Gear -> Advanced project settings -> Enable pre-release and then
+Install Editor Coroutines -> restart Unity`
+
+## PokemonBase.cs
+- Add the following lines:
+```
+  [SerializeField] private int id;
+  [SerializeField] private MrAmorphic.PokeApiPokemon pokeApiPokemon;
+  public int Id { get => id; set => id = value; }
+  public PokeApiPokemon PokeApiPokemon { get => pokeApiPokemon; set => pokeApiPokemon = value; }
+```
+- Rename in the **enum Stats** the fields `SpAttack and SpDefense`, to `Special_attack, Special_defense` (use F2 in Visual Studio)
+- Add setters for **ALL** fields in the following classes:
+  `PokemonBase, LearnableMove, Evolution`
+- Add `Steel, Dark, Fairy` to the **enum PokemonType**
+
+
+## MoveBase.cs
+- Add the following lines:
+```
+[SerializeField] private int id;
 [SerializeField] private MrAmorphic.PokeApiMove pokeApiMove; 
+public int Id { get => id; set => id = value; }
+public PokeApiMove PokeApiMove { get => pokeApiMove; set => pokeApiMove = value; }
+```
+- Add setters for **ALL** fields in the following classes:
+`MoveBase,  MoveEffects, SecondaryEffects`
 
-<b>ItemBase.cs</b><br>
+## ItemBase.cs
+- Add the following lines:
+```
+[SerializeField] private int id;
 [SerializeField] private MrAmorphic.PokeApiItem pokeApiItem;
+public int Id { get => id; set => id = value; }
+public PokeApiItem PokeApiItem { get => pokeApiItem; set => pokeApiItem = value; }
+```
+- Add setters for **ALL** fields in this class.
+- Remove **virtual** from `CanUseInBattle` and `CanUseOutsideBattle`
 
-all three should also have get/set so we can access the fields.
-These allow us to see all the data from the API, incase you want to add more functionality later.<p>
-
-Next rename conditions to full names <br>
-  <b>none, poison, burn, sleep, paralysis, freeze, confusion</b> (use F2 in visual studio)<br>
-there will still be errors when fetching the moves, this is because we haven't implemented all conditions, like trap or yawn.<br>
-So these moves will not be added until you add the condition to the enum but you'll still need to implement the condition too.<br>
-Full list of conditions missing is:<br>
-<b>yawn, trap, disable, leech_seed, unknown,nightmare, no_type_immunity, perish_song,<br>
-infatuation, torment, ingrain, embargo, heal_block, silence, tar_shot</b><br>
-<p>
-  Rename in the <b>enum</b> Stats the fields SpAttack and SpDefense, to Special_attack, Special_defense (again use F2 in Visual Studio)
-<p>
-
-When this is done, we need to add setters for ALL fields in
-MoveBase,  MoveEffects, SecondaryEffects<p>
-Add setters for all fields in ItemBase
-and here we also remove virtual from CanUseInBattle and CanUseOutsideBattle and removing the overrides for them in PokeballItem and TmItem
-<br>
-And we also need setters for all fields in PokemonBase, LearnableMove and Evolution
-<br>
-Add Steel, Dark, Fairy to PokemonType in PokemonBase.cs
-<br>
-This should conclude everything :)<br>
-When compiled, you should see a new Menu called MrAmorphic in Unity. <p><br>
-First you can check the settings in MrAmorphic.cs around line 180. <br>
-These are the folders where everything is created, wich language to use and wich game to get texts from.<br>
-And the last bools are if you want the sprites to be downloaded and added for pokemons and items.<br>
-and if you want to blank files for Pokemons/Items that are missing when adding evolutions. If a Pokemon/Item is missing, the evolution won't be added.<br>
-
-<h2>Changelog</h2>
-<ul>
-<li><b>2022-02-01</b><br>
-<ul>
-<li>Added enums for Version and VersionGroup, making it easier to select which game so fetch data from. There is also a selection for "Lastest" which goes through all games and finds the latest game in which the data was present.</li>
-<li>Fixed that moves don't get duplicates in LearnableMove or LearnableByItem</li>
-<li>Added a settings window instead of having the settings hidden in code. Window -> MrAmorphic -> PokeAPI Settings.</li>
-<li>Added custom editors for subitems (pokeball, recovery etc) this only updates the current item.
-</ul>
-</li>
-</ul>
+## ConditionsDB.cs
+Next rename conditions to full names in **ConditionID** (use F2 in visual studio)
   
-<h2>Known errors</h2>
-<ul>
-<li>Gen 8 Pokemon don't get moves added. They don't exist in the API.</li>
-<li>Other evolutions than Level-Up or Use-Item doesn't get added. No support in code yet.</li>
-<li>Item sprites get duplicates downloaded. Many TMs use the same sprite, but in the API they are unique.</li>
-<li>Some data is missing from the assets. Not in API. Example is how much health a Potion gives, or if the item can be used in battle. Same for TMs, this doesn't fill in the move just creates the asset and fills in the text.</li>
-</ul>
+  `none, poison, burn, sleep, paralysis, freeze, confusion,`
+  
+There will still be errors when fetching the moves, this is because we haven't implemented all conditions, like trap or yawn.
+So these moves will not be added until you add the condition to the enum but you'll still need to implement the condition too.
+Full list of conditions missing is:
+```
+yawn, trap, disable, leech_seed, unknown,nightmare, no_type_immunity, perish_song,
+infatuation, torment, ingrain, embargo, heal_block, silence, tar_shot,
+```
+
+## PokeballItem.cs
+- Remove the line
+`public override bool CanUseOutsideBattle => false;`
+  
+## TmItem.cs
+- Remove the line
+  `public override bool CanUseInBattle => false;`
+  
+  
+## Conclusion 
+When compiled, you should see a new Menu called **MrAmorphic** in Unity and you'll have a new window under
+
+`Window -> MrAmorhic -> PokeAPI Settings`
+
+First you can check the settings in **MrAmorphic.cs** around line 490.
+These are the folders where everything is created, wich language to use and which game to get texts from.
+These show up in the window too, but for now these don't get saved! So keep that in mind.
+
+And the last bools are if you want the sprites to be downloaded and added for pokemons and items.
+and if you want to blank files for Pokemons/Items that are missing when adding evolutions.
+If a Pokemon/Item is missing, the evolution won't be added.
+
+## Changelog
+- **2022-02-02**
+  - Rewrote this ReadME, adding clarifications and reformatting the text.
+- **2022-02-01**
+  - Added enums for Version and VersionGroup, making it easier to select which game so fetch data from. There is also a selection for "Lastest" which goes through all games and finds the latest game in which the data was present.
+  - Fixed that moves don't get duplicates in LearnableMove or LearnableByItem
+  - Added a settings window instead of having the settings hidden in code. Window -> MrAmorphic -> PokeAPI Settings.
+  - Added custom editors for subitems (pokeball, recovery etc) this only updates the current item.
+  
+## Known errors
+- Gen 8 Pokemon don't get moves added. They don't exist in the API.
+- Other evolutions than Level-Up or Use-Item doesn't get added. No support in code yet.
+- Item sprites get duplicates downloaded. Many TMs use the same sprite, but in the API they are unique.
+- Some data is missing from the assets. Not in API. Example is how much health a Potion gives, or if the item can be used in battle. Same for TMs, this doesn't fill in the move just creates the asset and fills in the text.
+- Paths in the Settings window don't get saved. Resets everytime.
     
