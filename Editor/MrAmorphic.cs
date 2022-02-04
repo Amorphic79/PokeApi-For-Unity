@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -39,6 +40,31 @@ namespace MrAmorphic
                 "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
                 _ => input.First().ToString().ToUpper() + input.Substring(1),
             };
+
+        public static string InsertSpaceBeforeUpperCase(this string str)
+        {
+            var sb = new StringBuilder();
+
+            char previousChar = char.MinValue; // Unicode '\0'
+
+            foreach (char c in str)
+            {
+                if (char.IsUpper(c))
+                {
+                    // If not the first character and previous character is not a space, insert a space before uppercase
+                    if (sb.Length != 0 && previousChar != ' ')
+                    {
+                        sb.Append(' ');
+                    }
+                }
+
+                sb.Append(c);
+
+                previousChar = c;
+            }
+
+            return sb.ToString();
+        }
     }
 
     public class CoroutineWithData
@@ -884,6 +910,14 @@ namespace MrAmorphic
             EditorCoroutineUtility.StartCoroutine(instance.GetPokemons(89, 810), instance);
         }
 
+        [MenuItem("MrAmorphic/PokeAPI/Moves/Set TM Moves")]
+        private static void TMs()
+        {
+            ClearConsole();
+            instance = CreateInstance<PokeApi>();
+            instance.SetTMMoves();
+        }
+
         private static void ClearConsole()
         {
             var assembly = Assembly.GetAssembly(typeof(SceneView));
@@ -1469,6 +1503,42 @@ namespace MrAmorphic
             AssetDatabase.SaveAssets();
 
             yield return null;
+        }
+
+        private List<TmItem> LoadAllAssetsAtPath(string path)
+        {
+            List<TmItem> objects = new List<TmItem>();
+            if (Directory.Exists(path))
+            {
+                string[] assets = Directory.GetFiles(path);
+                foreach (string assetPath in assets)
+                {
+                    if (assetPath.Contains(".asset") && !assetPath.Contains(".meta"))
+                    {
+                        objects.Add(AssetDatabase.LoadMainAssetAtPath(assetPath) as TmItem);
+                    }
+                }
+            }
+
+            return objects;
+        }
+
+        private void SetTMMoves()
+        {
+            List<TmItem> tmItems = this.LoadAllAssetsAtPath($"Assets/{pathToResources}{pathToItemAssets}{machinesFolder}");
+
+            MoveDB.Init();
+            foreach (var tmItem in tmItems)
+            {
+                string moveName = tmItem.PokeApiItem.effect_entries[0].effect.Replace("Teaches ", string.Empty).Replace(" to a compatible Pokémon.", string.Empty);
+                moveName = moveName.InsertSpaceBeforeUpperCase().Replace(" ", "-").Replace("--", "-").ToLower();
+                tmItem.SetDirty();
+                tmItem.Move = MoveDB.GetObjectByName(moveName);
+                if (tmItem.name.Substring(0, 2) == "hm")
+                {
+                    tmItem.IsHM = true;
+                }
+            }
         }
     }
 }
