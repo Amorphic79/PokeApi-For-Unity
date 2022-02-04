@@ -73,7 +73,7 @@ infatuation, torment, ingrain, embargo, heal_block, silence, tar_shot,
 ## TmItem.cs
 - Remove the line
   `public override bool CanUseInBattle => false;`
-  
+- Add setters for `move and isHM`
   
 ## Conclusion 
 When compiled, you should see a new Menu called **MrAmorphic** in Unity and you'll have a new window under
@@ -89,6 +89,8 @@ and if you want to blank files for Pokemons/Items that are missing when adding e
 If a Pokemon/Item is missing, the evolution won't be added.
 
 ## Changelog
+- **2022-02-04**
+  - Added function to set moves to TMs and HMs. You find it under the Moves menu. (Need to add setters for move and isHM under TmItem.cs)
 - **2022-02-02**
   - Rewrote this ReadME, adding clarifications and reformatting the text.
 - **2022-02-01**
