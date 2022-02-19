@@ -89,6 +89,8 @@ and if you want to blank files for Pokemons/Items that are missing when adding e
 If a Pokemon/Item is missing, the evolution won't be added.
 
 ## Changelog
+- **2022-02-19**
+  - Added missing data to the API
 - **2022-02-04**
   - Added function to set moves to TMs and HMs. You find it under the Moves menu. (Need to add setters for move and isHM under TmItem.cs)
 - **2022-02-02**
