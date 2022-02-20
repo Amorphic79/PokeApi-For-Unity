@@ -90,6 +90,7 @@ If a Pokemon/Item is missing, the evolution won't be added.
 
 ## Changelog
 - **2022-02-20**
+  - Added "healing" to PokeApiMoveMeta
   - Added more missing data in PokeApiSpecies, Pokemons should now be complete (except all the special sprites)
 - **2022-02-19**
   - Added missing data to the API
