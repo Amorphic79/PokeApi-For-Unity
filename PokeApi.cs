@@ -346,6 +346,7 @@ namespace MrAmorphic
         public int crit_rate;
         public int drain;
         public int flinch_chance;
+        public int healing;
         public int max_hits;
         public int max_turns;
         public int min_hits;
