@@ -89,6 +89,8 @@ and if you want to blank files for Pokemons/Items that are missing when adding e
 If a Pokemon/Item is missing, the evolution won't be added.
 
 ## Changelog
+- **2022-05-04**
+  - Updated GetItems() so it fetches all items from PokeAPI. (Almost 1000 more items now)
 - **2022-02-20**
   - Added "healing" to PokeApiMoveMeta
   - Added more missing data in PokeApiSpecies, Pokemons should now be complete (except all the special sprites)
