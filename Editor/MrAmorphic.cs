@@ -720,24 +720,22 @@ namespace MrAmorphic
             }
         }
 
-        public IEnumerator GetItems(int count = 749, int start = 1)
+        public IEnumerator GetItems(int count = 1700, int start = 1)
         {
             DateTime time = DateTime.Now;
             int countFetched = 0;
             CreateItemFolders();
             instance = CreateInstance<PokeApi>();
 
-            List<int> missingItemsIDs = new List<int>() { 667, 672, 680, };
-
             for (int i = start; i < (start + count); i++)
             {
-                if (missingItemsIDs.Contains(i))// Item is missing, skip to next
-                    continue;
-
                 yield return instance.GetItemData(i);
 
                 if (fetchError)
-                    break;
+                {
+                    Debug.Log($"Item with ID {i} not found in API. Skipping.");
+                    continue;
+                }
 
                 countFetched++;
             }
